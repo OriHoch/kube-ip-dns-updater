@@ -1,10 +1,12 @@
 # kube-ip-dns-updater
 
-Run it as an initContainer on a Kubernetes pod using hostPort and it will update the node's IP in Cloudflare's DNS.
+Run it as an initContainer on a Kubernetes pod using hostPort and it will update the node's IP in Cloudflare or Route53 DNS.
 
 ## Quickstart
 
-Create the required secret, for example:
+Create the required secret -
+
+### Cloudflare
 
 ```
 kubectl create secret generic kube-ip-dns-updater-test \
@@ -13,6 +15,16 @@ kubectl create secret generic kube-ip-dns-updater-test \
     --from-literal=CF_AUTH_EMAIL=<CLOUDFLARE_AUTHENTICATION_EMAIL> \
     --from-literal=CF_AUTH_KEY=<CLOUDFLARE_AUTHENTICATION_SECRET_KEY> \
     --from-literal=CF_ZONE_UPDATE_DATA_TEMPLATE='{"type":"A","name":"test","content":"{{NODE_IP}}","ttl":120,"proxied":false}'
+```
+
+### Route53
+
+```
+kubectl create secret generic kube-ip-dns-updater-test \
+    --from-literal=AWS_ZONE_NAME=example.com \
+    --from-literal=AWS_ZONE_UPDATE_DATA_TEMPLATE='{"Name": "test.example.com.","Type": "A","TTL": 120,"ResourceRecords": [{"Value": "{{NODE_IP}}"}]}' \
+    --from-literal=AWS_ACCESS_KEY_ID=<AWS_ACCESS_KEY_ID=> \
+    --from-literal=AWS_SECRET_ACCESS_KEY=<AWS_SECRET_ACCESS_KEY>
 ```
 
 Add an initContainer to relevant pod spec, see `tests/nginx-deployment.yaml`
