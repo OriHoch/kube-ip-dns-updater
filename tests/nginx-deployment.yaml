@@ -11,7 +11,7 @@ spec:
       terminationGracePeriodSeconds: 1
       initContainers:
       - name: dns
-        image: orihoch/kube-ip-dns-updater:v0.0.6
+        image: orihoch/kube-ip-dns-updater
         envFrom:
         - secretRef:
             name: kube-ip-dns-updater-test
@@ -28,4 +28,3 @@ spec:
         image: nginx:alpine
         ports:
         - containerPort: 80
-
