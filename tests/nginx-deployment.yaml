@@ -9,6 +9,7 @@ spec:
         app: nginx
     spec:
       terminationGracePeriodSeconds: 1
+      serviceAccountName: nginx-kube-ip-dns-updater
       initContainers:
       - name: dns
         image: orihoch/kube-ip-dns-updater

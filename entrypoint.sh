@@ -84,13 +84,17 @@ else
                            python -c "import sys,json;\
                                       print(json.load(sys.stdin)['ChangeInfo']['Id'].split('/')[2])"` && ! [ -z "${CHANGE_ID}" ]
         [ "$?" != "0" ] && echo Failed to get change id && exit 1
-        echo waiting for route53 change id ${CHANGE_ID} to complete
-        while sleep 1; do
-            echo .
-            [ "$(aws route53 get-change --id "${CHANGE_ID}" \
-                 | python -c "import sys,json;print(json.load(sys.stdin)['ChangeInfo']['Status'])")" != "PENDING" ] &&\
-            aws route53 get-change --id "${CHANGE_ID}" && break
-        done
+        if [ "${AWS_WAIT_FOR_CHANGE}" == "" ]; then
+            echo route53 change id ${CHANGE_ID} submitted
+        else
+            echo waiting for route53 change id ${CHANGE_ID} to complete
+            while sleep 1; do
+                echo .
+                [ "$(aws route53 get-change --id "${CHANGE_ID}" \
+                     | python -c "import sys,json;print(json.load(sys.stdin)['ChangeInfo']['Status'])")" != "PENDING" ] &&\
+                aws route53 get-change --id "${CHANGE_ID}" && break
+            done
+        fi
         echo Update complete
         exit 0
 
